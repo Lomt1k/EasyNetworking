@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using EasyNetworking.Messages;
 using UnityEngine;
 
 namespace EasyNetworking
@@ -15,7 +16,7 @@ namespace EasyNetworking
 
         private TcpListener _tcpListener;
 
-        private List<TcpClient> _clients = new List<TcpClient>();
+        private Dictionary<TcpClient, StreamHandler> _clients = new Dictionary<TcpClient, StreamHandler>();
         
         [ContextMenu(nameof(StartListener))]
         public void StartListener()
@@ -27,8 +28,6 @@ namespace EasyNetworking
 
             AcceptingClients();
             HandleConnections();
-            
-            TestTypes();
         }
         
         private async void AcceptingClients()
@@ -37,7 +36,8 @@ namespace EasyNetworking
             while (true)
             {
                 var newClient = await _tcpListener.AcceptTcpClientAsync();
-                _clients.Add(newClient);
+                var streamHandler = new StreamHandler(newClient.GetStream(), handleStreamDelay);
+                _clients.Add(newClient, streamHandler);
                 
                 var endPoint = newClient.Client.RemoteEndPoint;
                 string formattedEndPoint = endPoint is IPEndPoint ipEndPoint
@@ -46,11 +46,11 @@ namespace EasyNetworking
                 Debug.Log($"{name} | New connection from ({formattedEndPoint}) | Total connections: {_clients.Count}");
                 
                 //test
-                var stream = newClient.GetStream();
-                ushort commandID = 2236;
-                byte[] message = BitConverter.GetBytes(commandID);
-                stream.Write(message, 0, message.Length);
-                stream.Flush();
+                // var stream = newClient.GetStream();
+                // ushort messageID = 2236;
+                // byte[] id = BitConverter.GetBytes(messageID);
+                // stream.Write(id, 0, id.Length);
+                // stream.Flush();
             }
         }
 
@@ -60,7 +60,7 @@ namespace EasyNetworking
             {
                 await Task.Delay(handleStreamDelay);
                 List<TcpClient> clientsToRemove = new List<TcpClient>();
-                foreach (var client in _clients)
+                foreach (var client in _clients.Keys)
                 {
                     if (!client.Connected)
                     {
@@ -80,52 +80,11 @@ namespace EasyNetworking
 
         private void HandleConnection(TcpClient client)
         {
-            var stream = client.GetStream();
+            //var stream = client.GetStream();
             // while (stream.DataAvailable)
             // {
             //     
             // }
-        }
-
-        private void TestTypes()
-        {
-            ushort ushortValue = 300;
-            int intValue = 223;
-            Vector3 vector = Vector3.zero;
-            IComparable[] parameters =
-            {
-                ushortValue,
-                intValue,
-            };
-            
-            switch (parameters[0])
-            {
-                case ushort uint16:
-                    break;
-            }
-
-            int totalSize = 0;
-            foreach (var parameter in parameters)
-            {
-                var size = GetSizeOfParameter(parameter);
-                //var size = System.Runtime.InteropServices.Marshal.SizeOf(parameter);
-                Debug.Log($"parameter {parameter.GetType().Name} | size: {size}");
-                totalSize += size;
-            }
-            Debug.Log($"Total size: {totalSize}");
-        }
-
-        private int GetSizeOfParameter(IComparable parameter)
-        {
-            switch (parameter)
-            {
-                case ushort ushortVar:
-                    return sizeof(ushort);
-                case int intVar:
-                    return sizeof(int);
-            }
-
-            return 0;
         }
 
         private void OnDestroy()

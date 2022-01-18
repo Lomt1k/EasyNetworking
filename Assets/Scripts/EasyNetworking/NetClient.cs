@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Net.Sockets;
+using EasyNetworking.Messages;
 
 namespace EasyNetworking
 {
@@ -10,12 +11,20 @@ namespace EasyNetworking
         
         [SerializeField] private string _host = "127.0.0.1";
         [SerializeField] private int _port = 7777;
+
+        public static NetClient instance;
         
         private readonly TcpClient _tcpClient = new TcpClient();
         private StreamHandler _streamHandler;
     
         public bool isConnected => _tcpClient.Connected;
-        
+        public StreamHandler streamHandler => _streamHandler;
+
+        private void Awake()
+        {
+            instance = this;
+        }
+
         [ContextMenu(nameof(ConnectToServer))]
         public void ConnectToServer()
         {
@@ -49,6 +58,14 @@ namespace EasyNetworking
         private void OnCommandReceived(ushort commandId)
         {
             Debug.Log($"{name} | recieved command from server (ID: {commandId})");
+        }
+
+        [ContextMenu(nameof(TestSendMessage))]
+        public void TestSendMessage()
+        {
+            int intValue = 1122;
+            float floatValue = 100.5f;
+            ClientMessageSender.SendToServer(MessageId.SendValuesTest, new IComparable[]{intValue, floatValue} );
         }
     
         private void OnDestroy()
