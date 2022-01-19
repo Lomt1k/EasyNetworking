@@ -54,9 +54,9 @@ namespace EasyNetworking.Client
             _streamHandler = new ClientStreamHandler(networkStream, handleStreamDelay);
         }
         
-        public void SendToServer(MessageId messageId, object[] parameters)
+        public void SendToServer(ClientMessage messageId, object[] parameters)
         {
-            var messageData = new MessageData(messageId, parameters); 
+            var messageData = new MessageData((ushort)messageId, parameters); 
             _streamHandler.AddMessageToSend(messageData);
         }
 
@@ -65,14 +65,14 @@ namespace EasyNetworking.Client
         {
             int intValue = 1122;
             float floatValue = 100.5f;
-            SendToServer(MessageId.SendValuesTest, new object[]{intValue, floatValue} );
+            SendToServer(ClientMessage.SendValuesTest, new object[]{intValue, floatValue} );
         }
         
         [ContextMenu(nameof(SendHelloToServer))]
         public void SendHelloToServer()
         {
             string helloString = "Hello world!";
-            SendToServer(MessageId.SendHelloWorld, new object[]{helloString} );
+            SendToServer(ClientMessage.SendHelloWorld, new object[]{helloString} );
         }
     
         private void OnDestroy()

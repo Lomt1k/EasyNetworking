@@ -48,7 +48,7 @@ namespace EasyNetworking
         private void HandleNextReceivedMessage()
         {
             ushort messageId = _reader.ReadUInt16();
-            var parameterTypes = GetMessageParameterTypes(messageId);
+            var parameterTypes = GetReceivedMessageParameterTypes(messageId);
 
             object[] parameters = new object[parameterTypes.Length];
             for (int i = 0; i < parameters.Length; i++)
@@ -145,7 +145,7 @@ namespace EasyNetworking
             Debug.LogError($"StreamHandler | Отправка переменной типа {variable.GetType()} не поддерживается");
         }
 
-        protected abstract Type[] GetMessageParameterTypes(ushort messageId);
+        protected abstract Type[] GetReceivedMessageParameterTypes(ushort messageId);
         protected abstract void ExecuteReceivedMessage(ushort messageId, object[] parameters);
 
 

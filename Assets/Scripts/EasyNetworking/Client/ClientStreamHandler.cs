@@ -11,14 +11,14 @@ namespace EasyNetworking.Client
         {
         }
 
-        protected override Type[] GetMessageParameterTypes(ushort messageId)
+        protected override Type[] GetReceivedMessageParameterTypes(ushort messageId)
         {
-            return MessageRegistrator.GetMessageParameters(messageId);
+            return MessageRegistrator.GetMessageParameters(MessageType.MessageFromServer, messageId);
         }
 
         protected override void ExecuteReceivedMessage(ushort messageId, object[] parameters)
         {
-            var messId = (MessageId)messageId;
+            var messId = (ServerMessage)messageId;
             string log = $"ClientStreamHandler | Received {messId} with parameters: ";
             foreach (var parameter in parameters)
             {
