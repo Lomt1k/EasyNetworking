@@ -13,7 +13,7 @@ namespace EasyNetworking.Server
 
         protected override Type[] GetMessageParameterTypes(ushort messageId)
         {
-            return MessageDictionary.GetMessage((MessageId)messageId).parameterTypes;
+            return MessageRegistrator.GetMessageParameters(messageId);
         }
 
         protected override void ExecuteReceivedMessage(ushort messageId, object[] parameters)
