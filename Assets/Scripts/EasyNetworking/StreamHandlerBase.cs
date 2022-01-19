@@ -54,46 +54,10 @@ namespace EasyNetworking
             object[] parameters = new object[parameterTypes.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                parameters[i] = ReadNextParameter(parameterTypes[i]);
+                parameters[i] = StreamDataHelper.ReadNextParameter(_reader, parameterTypes[i]);
             }
             
             ExecuteReceivedMessage(messageId, parameters);
-        }
-
-        private object ReadNextParameter(Type parameterType)
-        {
-            switch (parameterType)
-            {
-                case Type _ when parameterType == typeof(int):
-                    return _reader.ReadInt32();
-                case Type _ when parameterType == typeof(uint):
-                    return _reader.ReadUInt32();
-                case Type _ when parameterType == typeof(float):
-                    return _reader.ReadSingle();
-                case Type _ when parameterType == typeof(bool):
-                    return _reader.ReadBoolean();
-                case Type _ when parameterType == typeof(short):
-                    return _reader.ReadInt16();
-                case Type _ when parameterType == typeof(ushort):
-                    return _reader.ReadUInt16();
-                case Type _ when parameterType == typeof(long):
-                    return _reader.ReadInt64();
-                case Type _ when parameterType == typeof(ulong):
-                    return _reader.ReadUInt64();
-                case Type _ when parameterType == typeof(string):
-                    return _reader.ReadString();
-                case Type _ when parameterType == typeof(char):
-                    return _reader.ReadChar();
-                case Type _ when parameterType == typeof(byte):
-                    return _reader.ReadByte();
-                case Type _ when parameterType == typeof(double):
-                    return _reader.ReadDouble();
-                case Type _ when parameterType == typeof(decimal):
-                    return _reader.ReadDecimal();
-            }
-            
-            Debug.LogError($"StreamHandler | Получено сообщение с параметром неизвестного типа");
-            return null;
         }
 
         private async void HandleDataSending()
@@ -119,31 +83,12 @@ namespace EasyNetworking
             _writer.Write(messageData.messageId);
             foreach (var parameter in messageData.parameters)
             {
-                WriteToStream(parameter);
+                StreamDataHelper.Write(_writer, parameter);
             }
             _writer.Flush();
         }
 
-        private void WriteToStream(object variable)
-        {
-            switch (variable)
-            {
-                case int var: _writer.Write(var); return;
-                case uint var: _writer.Write(var); return;
-                case float var: _writer.Write(var); return;
-                case bool var: _writer.Write(var); return;
-                case short var: _writer.Write(var); return;
-                case ushort var: _writer.Write(var); return;
-                case long var: _writer.Write(var); return;
-                case ulong var: _writer.Write(var); return;
-                case string var: _writer.Write(var); return;
-                case char var: _writer.Write(var); return;
-                case byte var: _writer.Write(var); return;
-                case double var: _writer.Write(var); return;
-                case decimal var: _writer.Write(var); return;
-            }
-            Debug.LogError($"StreamHandler | Отправка переменной типа {variable.GetType()} не поддерживается");
-        }
+        
 
         protected abstract Type[] GetReceivedMessageParameterTypes(ushort messageId);
         protected abstract void ExecuteReceivedMessage(ushort messageId, object[] parameters);
