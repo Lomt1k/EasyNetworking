@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using EasyNetworking.Messages;
 using UnityEngine;
 
 namespace EasyNetworking
@@ -21,7 +19,6 @@ namespace EasyNetworking
         [ContextMenu(nameof(StartListener))]
         public void StartListener()
         {
-            Debug.Log($"{name} | Starting server...");
             _tcpListener = new TcpListener(IPAddress.Any, _port);
             _tcpListener.Start();
             Debug.Log($"NetServer | Server started on port: {_port}");
@@ -32,7 +29,7 @@ namespace EasyNetworking
         
         private async void AcceptingClients()
         {
-            Debug.Log($"{name} | AcceptingClients...");
+            Debug.Log($"{name} | Waiting for connections...");
             while (true)
             {
                 var newClient = await _tcpListener.AcceptTcpClientAsync();
@@ -44,13 +41,6 @@ namespace EasyNetworking
                     ? $"IP: {ipEndPoint.Address} Port: {ipEndPoint.Port}"
                     : endPoint.ToString();
                 Debug.Log($"{name} | New connection from ({formattedEndPoint}) | Total connections: {_clients.Count}");
-                
-                //test
-                // var stream = newClient.GetStream();
-                // ushort messageID = 2236;
-                // byte[] id = BitConverter.GetBytes(messageID);
-                // stream.Write(id, 0, id.Length);
-                // stream.Flush();
             }
         }
 

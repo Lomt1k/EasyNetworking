@@ -3,7 +3,8 @@
     public enum MessageId : ushort
     {
         Unknown = 0,
-        SendValuesTest = 1
+        SendValuesTest,
+        SendHelloWorld
     }
 }
 

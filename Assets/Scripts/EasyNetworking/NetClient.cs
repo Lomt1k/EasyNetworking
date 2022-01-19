@@ -59,13 +59,29 @@ namespace EasyNetworking
         {
             Debug.Log($"{name} | recieved command from server (ID: {commandId})");
         }
+        
+        public static void SendToServer(MessageId messageId, object[] parameters)
+        {
+            if (instance == null)
+                Debug.LogError($"NetClient not initialized");
+            
+            var messageData = new MessageData(messageId, parameters); 
+            instance.streamHandler.AddMessageToSend(messageData);
+        }
 
-        [ContextMenu(nameof(TestSendMessage))]
-        public void TestSendMessage()
+        [ContextMenu(nameof(SendValuesTest))]
+        public void SendValuesTest()
         {
             int intValue = 1122;
             float floatValue = 100.5f;
-            ClientMessageSender.SendToServer(MessageId.SendValuesTest, new IComparable[]{intValue, floatValue} );
+            SendToServer(MessageId.SendValuesTest, new object[]{intValue, floatValue} );
+        }
+        
+        [ContextMenu(nameof(SendHelloToServer))]
+        public void SendHelloToServer()
+        {
+            string helloString = "Hello world!";
+            SendToServer(MessageId.SendHelloWorld, new object[]{helloString} );
         }
     
         private void OnDestroy()
