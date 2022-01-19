@@ -1,8 +1,7 @@
 ﻿using System;
-using EasyNetworking.Messages;
 using UnityEngine;
 
-namespace EasyNetworking
+namespace EasyNetworking.Messages
 {
     public class ClientMessageRegistrator : MonoBehaviour
     {
