@@ -35,19 +35,20 @@ namespace EasyNetworking
 
         private async void HandleReceivedData()
         {
-            while (true)
+            byte[] messageIdArr = new byte[2];
+            while (Application.isPlaying)
             {
-                await Task.Delay(_streamHandleDelay);
+                await _stream.ReadAsync(messageIdArr, 0, 2);
+                ushort messageId = BitConverter.ToUInt16(messageIdArr, 0);
                 while (_stream.DataAvailable)
                 {
-                    HandleNextReceivedMessage();
+                    HandleNextReceivedMessage(messageId);
                 }
             }
         }
 
-        private void HandleNextReceivedMessage()
+        private void HandleNextReceivedMessage(ushort messageId)
         {
-            ushort messageId = _reader.ReadUInt16();
             var parameterTypes = GetReceivedMessageParameterTypes(messageId);
 
             object[] parameters = new object[parameterTypes.Length];
@@ -97,7 +98,7 @@ namespace EasyNetworking
 
         private async void HandleDataSending()
         {
-            while (true)
+            while (Application.isPlaying)
             {
                 await Task.Delay(_streamHandleDelay);
                 HandleMessagesToSend();

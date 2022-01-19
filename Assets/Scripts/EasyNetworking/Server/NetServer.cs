@@ -23,14 +23,14 @@ namespace EasyNetworking.Server
             _tcpListener.Start();
             Debug.Log($"NetServer | Server started on port: {_port}");
 
-            AcceptingClients();
+            AcceptConnections();
             HandleConnections();
         }
         
-        private async void AcceptingClients()
+        private async void AcceptConnections()
         {
             Debug.Log($"{name} | Waiting for connections...");
-            while (true)
+            while (Application.isPlaying)
             {
                 var newClient = await _tcpListener.AcceptTcpClientAsync();
                 var streamHandler = new ServerStreamHandler(newClient.GetStream(), handleStreamDelay);
