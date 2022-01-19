@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace EasyNetworking
+namespace EasyNetworking.Server
 {
     public class NetServer : MonoBehaviour
     {
@@ -14,7 +14,7 @@ namespace EasyNetworking
 
         private TcpListener _tcpListener;
 
-        private Dictionary<TcpClient, StreamHandler> _clients = new Dictionary<TcpClient, StreamHandler>();
+        private Dictionary<TcpClient, ServerStreamHandler> _clients = new Dictionary<TcpClient, ServerStreamHandler>();
         
         [ContextMenu(nameof(StartListener))]
         public void StartListener()
@@ -33,7 +33,7 @@ namespace EasyNetworking
             while (true)
             {
                 var newClient = await _tcpListener.AcceptTcpClientAsync();
-                var streamHandler = new StreamHandler(newClient.GetStream(), handleStreamDelay);
+                var streamHandler = new ServerStreamHandler(newClient.GetStream(), handleStreamDelay);
                 _clients.Add(newClient, streamHandler);
                 
                 var endPoint = newClient.Client.RemoteEndPoint;

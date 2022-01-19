@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Net.Sockets;
 using EasyNetworking.Messages;
 
-namespace EasyNetworking
+namespace EasyNetworking.Client
 {
     public class NetClient : MonoBehaviour
     {
@@ -15,10 +15,9 @@ namespace EasyNetworking
         public static NetClient instance;
         
         private readonly TcpClient _tcpClient = new TcpClient();
-        private StreamHandler _streamHandler;
+        private ClientStreamHandler _streamHandler;
     
         public bool isConnected => _tcpClient.Connected;
-        public StreamHandler streamHandler => _streamHandler;
 
         private void Awake()
         {
@@ -51,22 +50,14 @@ namespace EasyNetworking
         private void OnConnectedToServer()
         {
             Debug.Log($"{name} | Connected to server. Connection state: {isConnected}");
-            _streamHandler = new StreamHandler(_tcpClient.GetStream(), handleStreamDelay);
-            _streamHandler.onCommandReceived += OnCommandReceived;
-        }
-    
-        private void OnCommandReceived(ushort commandId)
-        {
-            Debug.Log($"{name} | recieved command from server (ID: {commandId})");
+            var networkStream = _tcpClient.GetStream();
+            _streamHandler = new ClientStreamHandler(networkStream, handleStreamDelay);
         }
         
-        public static void SendToServer(MessageId messageId, object[] parameters)
+        public void SendToServer(MessageId messageId, object[] parameters)
         {
-            if (instance == null)
-                Debug.LogError($"NetClient not initialized");
-            
             var messageData = new MessageData(messageId, parameters); 
-            instance.streamHandler.AddMessageToSend(messageData);
+            _streamHandler.AddMessageToSend(messageData);
         }
 
         [ContextMenu(nameof(SendValuesTest))]

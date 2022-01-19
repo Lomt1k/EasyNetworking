@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace EasyNetworking
 {
-    public class StreamHandler
+    public abstract class StreamHandlerBase
     {
         private NetworkStream _stream;
         private BinaryReader _reader;
@@ -16,10 +16,8 @@ namespace EasyNetworking
         
         private Queue<MessageData> _messagesToSendQueue = new Queue<MessageData>();
         private int _streamHandleDelay;
-    
-        public Action<ushort> onCommandReceived;
         
-        public StreamHandler(NetworkStream stream, int streamHandleDelay)
+        public StreamHandlerBase(NetworkStream stream, int streamHandleDelay)
         {
             _stream = stream;
             _reader = new BinaryReader(_stream);
@@ -49,8 +47,8 @@ namespace EasyNetworking
 
         private void HandleNextReceivedMessage()
         {
-            MessageId messageId = (MessageId)_reader.ReadUInt16();
-            var parameterTypes = MessageDictionary.GetMessage(messageId).parameterTypes;
+            ushort messageId = _reader.ReadUInt16();
+            var parameterTypes = GetMessageParameterTypes(messageId);
 
             object[] parameters = new object[parameterTypes.Length];
             for (int i = 0; i < parameters.Length; i++)
@@ -58,13 +56,7 @@ namespace EasyNetworking
                 parameters[i] = ReadNextParameter(parameterTypes[i]);
             }
             
-            //TODO
-            string str = $"Received message {messageId} | parameters: ";
-            foreach (var parameter in parameters)
-            {
-                str += parameter + " ";
-            }
-            Debug.Log(str);
+            ExecuteReceivedMessage(messageId, parameters);
         }
 
         private object ReadNextParameter(Type parameterType)
@@ -102,8 +94,6 @@ namespace EasyNetworking
             Debug.LogError($"StreamHandler | Получено сообщение с параметром неизвестного типа");
             return null;
         }
-        
-        //
 
         private async void HandleDataSending()
         {
@@ -154,11 +144,13 @@ namespace EasyNetworking
             }
             Debug.LogError($"StreamHandler | Отправка переменной типа {variable.GetType()} не поддерживается");
         }
-        
 
-        ~StreamHandler()
+        protected abstract Type[] GetMessageParameterTypes(ushort messageId);
+        protected abstract void ExecuteReceivedMessage(ushort messageId, object[] parameters);
+
+
+        ~StreamHandlerBase()
         {
-            onCommandReceived = null;
         }
         
     }
