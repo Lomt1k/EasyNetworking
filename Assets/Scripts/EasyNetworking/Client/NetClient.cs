@@ -7,8 +7,6 @@ namespace EasyNetworking.Client
 {
     public class NetClient : MonoBehaviour
     {
-        private const int handleStreamDelay = 10;
-        
         [SerializeField] private string _host = "127.0.0.1";
         [SerializeField] private int _port = 7777;
 
@@ -51,7 +49,7 @@ namespace EasyNetworking.Client
         {
             Debug.Log($"{name} | Connected to server. Connection state: {isConnected}");
             var networkStream = _tcpClient.GetStream();
-            _streamHandler = new ClientStreamHandler(networkStream, handleStreamDelay);
+            _streamHandler = new ClientStreamHandler(networkStream);
         }
         
         public void SendToServer(ClientMessage messageId, object[] parameters)

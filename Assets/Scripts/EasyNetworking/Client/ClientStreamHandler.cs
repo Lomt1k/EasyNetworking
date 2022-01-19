@@ -7,7 +7,7 @@ namespace EasyNetworking.Client
 {
     public class ClientStreamHandler : StreamHandlerBase
     {
-        public ClientStreamHandler(NetworkStream stream, int streamHandleDelay) : base(stream, streamHandleDelay)
+        public ClientStreamHandler(NetworkStream stream) : base(stream)
         {
         }
 

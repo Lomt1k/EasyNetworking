@@ -8,7 +8,7 @@ namespace EasyNetworking.Server
 {
     public class NetServer : MonoBehaviour
     {
-        private const int handleStreamDelay = 10;
+        private const int handleConnectionsMillisecondsDelay = 1000;
         
         [SerializeField] private int _port = 7777;
 
@@ -24,7 +24,7 @@ namespace EasyNetworking.Server
             Debug.Log($"NetServer | Server started on port: {_port}");
 
             AcceptConnections();
-            HandleConnections();
+            HandleLostConnections();
         }
         
         private async void AcceptConnections()
@@ -33,7 +33,8 @@ namespace EasyNetworking.Server
             while (Application.isPlaying)
             {
                 var newClient = await _tcpListener.AcceptTcpClientAsync();
-                var streamHandler = new ServerStreamHandler(newClient.GetStream(), handleStreamDelay);
+                var networkStream = newClient.GetStream();
+                var streamHandler = new ServerStreamHandler(networkStream);
                 _clients.Add(newClient, streamHandler);
                 
                 var endPoint = newClient.Client.RemoteEndPoint;
@@ -44,20 +45,18 @@ namespace EasyNetworking.Server
             }
         }
 
-        private async void HandleConnections()
+        private async void HandleLostConnections()
         {
             while (true)
             {
-                await Task.Delay(handleStreamDelay);
+                await Task.Delay(handleConnectionsMillisecondsDelay);
                 List<TcpClient> clientsToRemove = new List<TcpClient>();
                 foreach (var client in _clients.Keys)
                 {
                     if (!client.Connected)
                     {
                         clientsToRemove.Add(client);
-                        continue;
                     }
-                    HandleConnection(client);
                 }
 
                 foreach (var clientToRemove in clientsToRemove)
@@ -66,15 +65,6 @@ namespace EasyNetworking.Server
                     _clients.Remove(clientToRemove);
                 }
             }
-        }
-
-        private void HandleConnection(TcpClient client)
-        {
-            //var stream = client.GetStream();
-            // while (stream.DataAvailable)
-            // {
-            //     
-            // }
         }
 
         private void OnDestroy()

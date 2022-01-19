@@ -10,19 +10,19 @@ namespace EasyNetworking
 {
     public abstract class StreamHandlerBase
     {
+        private const int milisecondsBeforeSendingData = 1;
+        
         private NetworkStream _stream;
         private BinaryReader _reader;
         private BinaryWriter _writer;
         
         private Queue<MessageData> _messagesToSendQueue = new Queue<MessageData>();
-        private int _streamHandleDelay;
-        
-        public StreamHandlerBase(NetworkStream stream, int streamHandleDelay)
+
+        protected StreamHandlerBase(NetworkStream stream)
         {
             _stream = stream;
             _reader = new BinaryReader(_stream);
             _writer = new BinaryWriter(_stream);
-            _streamHandleDelay = streamHandleDelay;
             
             HandleReceivedData();
             HandleDataSending();
@@ -100,7 +100,7 @@ namespace EasyNetworking
         {
             while (Application.isPlaying)
             {
-                await Task.Delay(_streamHandleDelay);
+                await Task.Delay(milisecondsBeforeSendingData);
                 HandleMessagesToSend();
             }
         }
@@ -116,8 +116,7 @@ namespace EasyNetworking
 
         private void WriteMessageToStream(MessageData messageData)
         {
-            _writer.Write((ushort)messageData.messageId);
-
+            _writer.Write(messageData.messageId);
             foreach (var parameter in messageData.parameters)
             {
                 WriteToStream(parameter);
